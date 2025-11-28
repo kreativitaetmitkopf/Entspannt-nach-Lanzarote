@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
-import { Plane, Train, Car, Ship, Users, Caravan } from 'lucide-react';
+import { Plane, Train, Car, Ship, Users, Caravan, Bus } from 'lucide-react';
 import { TransportMode } from '../types';
 
 export const Home: React.FC = () => {
@@ -58,13 +58,14 @@ export const Home: React.FC = () => {
         </p>
         
         {/* Selection Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <ModeButton mode={TransportMode.FLIGHT} icon={Plane} label="Flug" />
           <ModeButton mode={TransportMode.TRAIN} icon={Train} label="Zug" />
           <ModeButton mode={TransportMode.FERRY} icon={Ship} label="Fähre" />
+          <ModeButton mode={TransportMode.COACH} icon={Bus} label="Reisebus" />
           <ModeButton mode={TransportMode.RENTAL_CAR} icon={Car} label="Mietwagen" />
           <ModeButton mode={TransportMode.RIDESHARE} icon={Users} label="Mitfahrgeleg." />
-          <ModeButton mode={TransportMode.OWN_VEHICLE} icon={Caravan} label="Wohnmobil/Auto" />
+          <ModeButton mode={TransportMode.OWN_VEHICLE} icon={Caravan} label="Wohnmobil" />
         </div>
 
         <Button onClick={startPlanning} fullWidth disabled={selectedModes.length === 0}>

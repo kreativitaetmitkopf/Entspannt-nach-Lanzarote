@@ -4,7 +4,8 @@ export enum TransportMode {
   FERRY = 'FAEHRE',
   RIDESHARE = 'MITFAHRGELEGENHEIT',
   RENTAL_CAR = 'MIETWAGEN',
-  OWN_VEHICLE = 'EIGENES_FAHRZEUG' // Auto oder Wohnmobil
+  OWN_VEHICLE = 'EIGENES_FAHRZEUG', // Auto oder Wohnmobil
+  COACH = 'REISEBUS'
 }
 
 export enum TravelPreference {

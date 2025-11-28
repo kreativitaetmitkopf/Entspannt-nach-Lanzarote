@@ -28,12 +28,14 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
     Wenn "Mitfahrgelegenheit" gewählt ist, suche nach BlaBlaCar Optionen zum nächsten großen Hub (Flughafen/Hafen).
     Wenn "Mietwagen" gewählt ist, zeige eine Fly & Drive Option oder Mietwagen ab Festland (wenn realistisch).
     Wenn "Eigenes Fahrzeug" gewählt ist, zeige die Fährroute ab Huelva/Cadiz.
+    Wenn "Reisebus" gewählt ist, suche nach Fernbus-Verbindungen (FlixBus, ALSA) zum Flughafen oder Hafen (z.B. Bus nach Huelva + Fähre).
     
     WICHTIG - BUCHUNGSSCHRITTE (bookingSteps):
     Erstelle konkrete Anleitungen mit Links:
     - FLUG: Google Flights Link mit Startort "${params.origin}" (oder Flughäfen in 200km Nähe). 
       URL: "https://www.google.com/travel/flights?q=Flights+from+${params.origin}+to+Lanzarote+on+${params.startDate}"
     - ZUG: bahn.de, thetrainline.com
+    - REISEBUS: flixbus.de, alsa.es
     - FÄHRE: directferries.com, navieraarmas.com, fredolsen.es
     - MITFAHRGELEGENHEIT: blablacar.de (Suche nach Fahrt zum Flughafen/Hafen)
     - MIETWAGEN: billiger-mietwagen.de, check24.de/mietwagen

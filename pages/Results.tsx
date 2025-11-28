@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { SearchParams, TravelOption, TransportMode } from '../types';
 import { generateTravelOptions } from '../services/geminiService';
 import { Button } from '../components/Button';
-import { Plane, Train, Ship, Car, AlertCircle, CheckCircle, ArrowRight, Users, Caravan } from 'lucide-react';
+import { Plane, Train, Ship, Car, AlertCircle, CheckCircle, ArrowRight, Users, Caravan, Bus } from 'lucide-react';
 
 interface ResultsProps {
   searchParams: SearchParams | null;
@@ -69,6 +69,7 @@ export const Results: React.FC<ResultsProps> = ({ searchParams }) => {
       case TransportMode.RENTAL_CAR: return <Car className="w-8 h-8" />;
       case TransportMode.RIDESHARE: return <Users className="w-8 h-8" />;
       case TransportMode.OWN_VEHICLE: return <Caravan className="w-8 h-8" />;
+      case TransportMode.COACH: return <Bus className="w-8 h-8" />;
       default: return <Ship className="w-8 h-8" />;
     }
   };
