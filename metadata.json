@@ -1,0 +1,7 @@
+{
+  "name": "Entspannt nach Lanzarote",
+  "description": "Eine reisefreundliche App für Senioren, um die besten Verbindungen nach Lanzarote zu finden – ob per Flug, Bahn, Fähre oder Wohnmobil.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
