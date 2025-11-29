@@ -19,6 +19,7 @@ export interface BookingStep {
   providerName: string;
   bookingUrl: string;
   description: string;
+  isNavigation?: boolean; // New flag to highlight navigation steps
 }
 
 export interface TravelOption {
@@ -37,6 +38,7 @@ export interface TravelOption {
 
 export interface SearchParams {
   origin: string;
+  accommodation: string; // New: Target address on Lanzarote
   startDate: string;
   flexibilityDays: number; // +/- days
   travelers: number;

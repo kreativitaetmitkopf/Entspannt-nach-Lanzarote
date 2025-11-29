@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { SearchParams, TravelPreference, TransportMode } from '../types';
-import { MapPin, Calendar, Users, Caravan, Euro, Scale, Armchair, Info } from 'lucide-react';
+import { MapPin, Calendar, Users, Caravan, Euro, Scale, Armchair, Info, Home as HomeIcon } from 'lucide-react';
 
 interface SearchProps {
   setSearchParams: (params: SearchParams) => void;
@@ -18,16 +18,15 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
 
   const [formData, setFormData] = useState<SearchParams>({
     origin: '',
+    accommodation: '', // New field
     startDate: new Date().toISOString().split('T')[0],
     flexibilityDays: 3,
     travelers: 2,
-    hasCamper: false, // Legacy field, logic now mainly handled by modes but kept for compatibility
+    hasCamper: false, 
     preference: TravelPreference.BALANCED,
     modes: initialModes
   });
 
-  // Check if Own Vehicle is selected to auto-check camper options if needed, 
-  // though strictly we use the modes array now.
   useEffect(() => {
     if (formData.modes.includes(TransportMode.OWN_VEHICLE)) {
       setFormData(prev => ({ ...prev, hasCamper: true }));
@@ -38,11 +37,6 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
     setLoadingLoc(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(async (position) => {
-        const lat = position.coords.latitude.toFixed(2);
-        const lng = position.coords.longitude.toFixed(2);
-        // Wir setzen einen generischen Text, damit der User sieht, dass es geklappt hat.
-        // Für Google Flights Suche ist der exakte String nicht kritisch, da wir "nearby" suchen
-        // aber schöner wäre ein echter Ortsname. Da wir keine API haben:
         setFormData(prev => ({ ...prev, origin: `Mein Standort` })); 
         setLoadingLoc(false);
       }, (error) => {
@@ -85,27 +79,43 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
             <div className="space-y-6 animate-fade-in">
               <h2 className="text-3xl font-bold text-lanzarote-ocean flex items-center gap-3">
                 <MapPin className="w-8 h-8" />
-                Wo starten wir?
+                Start & Ziel
               </h2>
-              <p className="text-xl text-gray-600">Geben Sie Ihren Wohnort (DACH) ein. Wir suchen automatisch im Radius von 200km nach Abflughäfen.</p>
+              <p className="text-xl text-gray-600">Von wo reisen Sie an und wo wohnen Sie auf der Insel?</p>
               
-              <div className="space-y-4">
-                <input 
-                  type="text" 
-                  value={formData.origin}
-                  onChange={(e) => setFormData({...formData, origin: e.target.value})}
-                  placeholder="z.B. München, Wien, Zürich, Hamburg..."
-                  className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-lanzarote-ocean focus:ring-2 focus:ring-lanzarote-ocean focus:outline-none"
-                />
-                
-                <button 
-                  onClick={handleGeoLocation}
-                  disabled={loadingLoc}
-                  className="text-lanzarote-ocean font-bold flex items-center gap-2 hover:underline text-lg"
-                >
-                  <MapPin className="w-5 h-5" />
-                  {loadingLoc ? 'Ortung läuft...' : 'Meinen aktuellen Standort verwenden'}
-                </button>
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-gray-700 font-bold mb-2">Ihr Startort (DACH-Raum):</label>
+                  <input 
+                    type="text" 
+                    value={formData.origin}
+                    onChange={(e) => setFormData({...formData, origin: e.target.value})}
+                    placeholder="z.B. München, Wien, Zürich..."
+                    className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-lanzarote-ocean focus:ring-2 focus:ring-lanzarote-ocean focus:outline-none"
+                  />
+                  <button 
+                    onClick={handleGeoLocation}
+                    disabled={loadingLoc}
+                    className="text-lanzarote-ocean font-bold flex items-center gap-2 hover:underline text-lg mt-2"
+                  >
+                    <MapPin className="w-5 h-5" />
+                    {loadingLoc ? 'Ortung läuft...' : 'Meinen aktuellen Standort verwenden'}
+                  </button>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100">
+                  <label className="block text-gray-700 font-bold mb-2 flex items-center gap-2">
+                    <HomeIcon className="w-5 h-5" /> Ihre Unterkunft auf Lanzarote (Optional):
+                  </label>
+                  <input 
+                    type="text" 
+                    value={formData.accommodation}
+                    onChange={(e) => setFormData({...formData, accommodation: e.target.value})}
+                    placeholder="z.B. Hotel Fariones, Costa Teguise, Calle..."
+                    className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-lanzarote-ocean focus:ring-2 focus:ring-lanzarote-ocean focus:outline-none"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Wir erstellen Ihnen eine Route vom Flughafen zur Unterkunft.</p>
+                </div>
               </div>
 
               <div className="pt-6">

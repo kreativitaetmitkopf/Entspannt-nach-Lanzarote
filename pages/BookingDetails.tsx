@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { TravelOption } from '../types';
 import { Button } from '../components/Button';
-import { ExternalLink, ArrowLeft, CheckCircle, Info } from 'lucide-react';
+import { ExternalLink, ArrowLeft, CheckCircle, Info, Map as MapIcon, Car } from 'lucide-react';
 
 export const BookingDetails: React.FC = () => {
   const location = useLocation();
@@ -44,32 +44,38 @@ export const BookingDetails: React.FC = () => {
           <h3 className="text-2xl font-bold text-gray-800 border-b pb-2">Ihre Buchungs-Checkliste</h3>
           
           <div className="space-y-6">
-            {option.bookingSteps.map((step, index) => (
-              <div key={index} className="flex flex-col md:flex-row gap-6 p-6 border-2 border-gray-100 rounded-xl hover:border-lanzarote-ocean transition-colors">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-lanzarote-ocean text-white rounded-full flex items-center justify-center text-2xl font-bold shadow-md">
-                    {index + 1}
+            {option.bookingSteps.map((step, index) => {
+              const isNavigation = step.isNavigation;
+              return (
+                <div 
+                  key={index} 
+                  className={`flex flex-col md:flex-row gap-6 p-6 border-2 rounded-xl transition-colors ${isNavigation ? 'border-lanzarote-ocean bg-[#5e6d5a]/5' : 'border-gray-100 hover:border-lanzarote-ocean'}`}
+                >
+                  <div className="flex-shrink-0">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold shadow-md ${isNavigation ? 'bg-white text-lanzarote-ocean border-2 border-lanzarote-ocean' : 'bg-lanzarote-ocean text-white'}`}>
+                      {isNavigation ? <MapIcon className="w-6 h-6" /> : (index + 1)}
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex-1 space-y-3">
-                  <h4 className="text-xl font-bold text-gray-800">{step.stepTitle}</h4>
-                  <p className="text-gray-600">{step.description}</p>
-                  <div className="text-sm font-semibold text-lanzarote-ocean bg-stone-100 inline-block px-3 py-1 rounded-lg">
-                    Anbieter: {step.providerName}
+                  
+                  <div className="flex-1 space-y-3">
+                    <h4 className="text-xl font-bold text-gray-800">{step.stepTitle}</h4>
+                    <p className="text-gray-600">{step.description}</p>
+                    <div className={`text-sm font-semibold inline-block px-3 py-1 rounded-lg ${isNavigation ? 'text-white bg-lanzarote-ocean' : 'text-lanzarote-ocean bg-stone-100'}`}>
+                      {isNavigation ? 'Navigation' : `Anbieter: ${step.providerName}`}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center">
-                   <Button 
-                      onClick={() => handleBookClick(step.bookingUrl)} 
-                      className="whitespace-nowrap flex items-center gap-2 shadow-lg"
-                    >
-                      Zum Angebot <ExternalLink className="w-5 h-5" />
-                   </Button>
+                  <div className="flex items-center">
+                     <Button 
+                        onClick={() => handleBookClick(step.bookingUrl)} 
+                        className={`whitespace-nowrap flex items-center gap-2 shadow-lg ${isNavigation ? 'bg-lanzarote-ocean hover:bg-[#4a5647]' : ''}`}
+                      >
+                        {isNavigation ? 'Route öffnen' : 'Zum Angebot'} <ExternalLink className="w-5 h-5" />
+                     </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="pt-8 text-center space-y-4">
