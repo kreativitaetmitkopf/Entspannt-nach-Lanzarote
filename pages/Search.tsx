@@ -40,7 +40,10 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const lat = position.coords.latitude.toFixed(2);
         const lng = position.coords.longitude.toFixed(2);
-        setFormData(prev => ({ ...prev, origin: `Mein Standort (${lat}, ${lng})` }));
+        // Wir setzen einen generischen Text, damit der User sieht, dass es geklappt hat.
+        // Für Google Flights Suche ist der exakte String nicht kritisch, da wir "nearby" suchen
+        // aber schöner wäre ein echter Ortsname. Da wir keine API haben:
+        setFormData(prev => ({ ...prev, origin: `Mein Standort` })); 
         setLoadingLoc(false);
       }, (error) => {
         alert("Standort konnte nicht ermittelt werden. Bitte geben Sie die Stadt manuell ein.");
@@ -84,14 +87,14 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
                 <MapPin className="w-8 h-8" />
                 Wo starten wir?
               </h2>
-              <p className="text-xl text-gray-600">Geben Sie Ihren Wohnort ein. Wir suchen im Umkreis von 200km nach passenden Startpunkten.</p>
+              <p className="text-xl text-gray-600">Geben Sie Ihren Wohnort (DACH) ein. Wir suchen automatisch im Radius von 200km nach Abflughäfen.</p>
               
               <div className="space-y-4">
                 <input 
                   type="text" 
                   value={formData.origin}
                   onChange={(e) => setFormData({...formData, origin: e.target.value})}
-                  placeholder="z.B. Köln, Bonn, Euskirchen..."
+                  placeholder="z.B. München, Wien, Zürich, Hamburg..."
                   className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-lanzarote-ocean focus:ring-2 focus:ring-lanzarote-ocean focus:outline-none"
                 />
                 

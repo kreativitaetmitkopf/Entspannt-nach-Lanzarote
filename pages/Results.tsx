@@ -27,7 +27,7 @@ export const Results: React.FC<ResultsProps> = ({ searchParams }) => {
         const data = await generateTravelOptions(searchParams);
         setOptions(data);
       } catch (err) {
-        setError("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.");
+        setError("Es konnte keine Verbindung berechnet werden.");
       } finally {
         setLoading(false);
       }
@@ -40,9 +40,9 @@ export const Results: React.FC<ResultsProps> = ({ searchParams }) => {
     return (
       <div className="text-center py-20 px-4">
         <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-lanzarote-ocean mb-8"></div>
-        <h2 className="text-3xl font-bold text-lanzarote-ocean mb-4">Einen Moment bitte...</h2>
+        <h2 className="text-3xl font-bold text-lanzarote-ocean mb-4">Reiseplan wird erstellt...</h2>
         <p className="text-xl text-gray-600">
-          Unser intelligenter Reiseassistent prüft Ihre gewählten Verkehrsmittel:
+          Wir suchen die besten Verbindungen für Ihre Auswahl:
         </p>
         <p className="text-lg text-lanzarote-ocean font-bold mt-2">
           {searchParams?.modes.map(m => m.replace('_', ' ')).join(' + ')}
