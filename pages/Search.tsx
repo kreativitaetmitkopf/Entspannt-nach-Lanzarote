@@ -1,8 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { SearchParams, TravelPreference, TransportMode } from '../types';
 import { MapPin, Calendar, Users, Caravan, Euro, Scale, Armchair, Info, Home as HomeIcon } from 'lucide-react';
+
+// Statische Liste beliebter Orte auf Lanzarote für die Autovervollständigung (Kostenlose Alternative zu Google Places API)
+const LANZAROTE_PLACES = [
+  // Orte
+  "Puerto del Carmen", "Playa Blanca", "Costa Teguise", "Arrecife", 
+  "Playa de Famara", "Caleta de Famara", "Yaiza", "Haria", "Teguise", 
+  "San Bartolomé", "Tinajo", "Orzola", "El Golfo", "La Santa", "Charco del Palo",
+  "Puerto Calero", "Playa Honda", "Matagorda", "Los Pocillos",
+  // Beliebte Hotels / Resorts (Beispiele)
+  "Hotel Fariones", "Princesa Yaiza Suite Hotel", "Seaside Los Jameos",
+  "H10 Rubicón Palace", "Gran Castillo Tagoro", "Iberostar Selection Lanzarote Park",
+  "Riu Paraiso Lanzarote", "Sands Beach Resort", "Club La Santa", 
+  "Arrecife Gran Hotel & Spa", "Secrets Lanzarote Resort", "Barceló Teguise Beach"
+];
 
 interface SearchProps {
   setSearchParams: (params: SearchParams) => void;
@@ -13,6 +27,11 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
   const location = useLocation();
   const [step, setStep] = useState(1);
   const [loadingLoc, setLoadingLoc] = useState(false);
+  
+  // Autocomplete State
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   
   const initialModes = location.state?.modes || [TransportMode.FLIGHT];
 
@@ -33,6 +52,19 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
     }
   }, [formData.modes]);
 
+  // Schließt die Vorschlagsliste, wenn man woanders hinklickt
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [wrapperRef]);
+
   const handleGeoLocation = () => {
     setLoadingLoc(true);
     if ("geolocation" in navigator) {
@@ -46,6 +78,26 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
     } else {
       setLoadingLoc(false);
     }
+  };
+
+  const handleAccommodationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({ ...formData, accommodation: value });
+
+    if (value.length > 1) {
+      const filtered = LANZAROTE_PLACES.filter(place => 
+        place.toLowerCase().includes(value.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const selectSuggestion = (place: string) => {
+    setFormData({ ...formData, accommodation: place });
+    setShowSuggestions(false);
   };
 
   const nextStep = () => setStep(s => s + 1);
@@ -103,17 +155,34 @@ export const Search: React.FC<SearchProps> = ({ setSearchParams }) => {
                   </button>
                 </div>
 
-                <div className="pt-4 border-t border-gray-100">
+                <div className="pt-4 border-t border-gray-100 relative" ref={wrapperRef}>
                   <label className="block text-gray-700 font-bold mb-2 flex items-center gap-2">
                     <HomeIcon className="w-5 h-5" /> Ihre Unterkunft auf Lanzarote (Optional):
                   </label>
                   <input 
                     type="text" 
                     value={formData.accommodation}
-                    onChange={(e) => setFormData({...formData, accommodation: e.target.value})}
-                    placeholder="z.B. Hotel Fariones, Costa Teguise, Calle..."
+                    onChange={handleAccommodationChange}
+                    placeholder="z.B. Puerto del Carmen, Hotel Fariones..."
                     className="w-full p-4 text-xl border-2 border-gray-300 rounded-xl focus:border-lanzarote-ocean focus:ring-2 focus:ring-lanzarote-ocean focus:outline-none"
+                    autoComplete="off"
                   />
+                  
+                  {/* Autocomplete Dropdown */}
+                  {showSuggestions && (
+                    <div className="absolute z-10 w-full bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-xl max-h-60 overflow-y-auto">
+                      {suggestions.map((place, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => selectSuggestion(place)}
+                          className="p-3 hover:bg-lanzarote-sky cursor-pointer text-lg text-gray-700 border-b border-gray-100 last:border-0"
+                        >
+                          {place}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <p className="text-sm text-gray-500 mt-1">Wir erstellen Ihnen eine Route vom Flughafen zur Unterkunft.</p>
                 </div>
               </div>

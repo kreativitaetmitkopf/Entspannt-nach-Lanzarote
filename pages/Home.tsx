@@ -46,8 +46,8 @@ export const Home: React.FC = () => {
       
       <div className="bg-white p-6 rounded-2xl shadow-xl border-2 border-lanzarote-sand max-w-3xl w-full">
         <img 
-          src="https://images.unsplash.com/photo-1542981589-32219c2df360?q=80&w=1200&auto=format&fit=crop" 
-          alt="Playa de Famara Lanzarote" 
+          src="https://hrafwiucqvqblnsvmupg.supabase.co/storage/v1/object/sign/Entspannt%20nach%20Lanzarote/IMG_8291.JPEG?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9iOWE0OTQ2MC04MDExLTQ5NzktYWE3OC01MTkwYTllNjhhODMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJFbnRzcGFubnQgbmFjaCBMYW56YXJvdGUvSU1HXzgyOTEuSlBFRyIsImlhdCI6MTc2NDU4MTE1NSwiZXhwIjo0OTE4MTgxMTU1fQ.s7iIzC6g1Xik55ZgB4lZD3vw0l7xVmBfJeV1Ad8Xc6M" 
+          alt="Lanzarote Landschaft" 
           className="w-full h-48 object-cover rounded-xl mb-6 shadow-sm" 
         />
         <h2 className="text-3xl font-bold text-lanzarote-ocean mb-2">

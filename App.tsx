@@ -34,7 +34,8 @@ export default function App() {
           </Routes>
         </main>
         
-        <footer className="text-center p-8 text-gray-500 text-sm">
+        <footer className="text-center p-8 text-gray-500 text-sm space-y-2">
+          <p>Erstellt mit 🩷 von Marion Sonntag... beim Kaffee ☕ und mit Blick darauf, wie KI-Tools diese Website zum Leben erweckt</p>
           <p>© 2024 Entspannt nach Lanzarote - Best Ager</p>
         </footer>
       </div>
