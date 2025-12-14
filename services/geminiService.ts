@@ -1,26 +1,62 @@
 import { SearchParams, TravelOption, TransportMode, TravelPreference, BookingStep } from '../types';
 
 /**
- * HILFSFUNKTIONEN FÜR URLS
+ * --- AFFILIATE KONFIGURATION ---
+ * Hier tragen Sie Ihre Partner-Links ein.
+ * Wenn Sie bei einem Partnerprogramm (z.B. Awin, TradeTracker, CJ) sind,
+ * ersetzen Sie die untenstehenden URLs durch Ihre Tracking-Links.
  */
-const getGoogleFlightsUrl = (origin: string, date: string) => {
-  const originEncoded = encodeURIComponent(origin);
-  // Wir suchen explizit nach Arrecife (ACE). Google Flights macht den Radius-Check automatisch bei Ortsnamen.
-  return `https://www.google.com/travel/flights?q=Flights+from+${originEncoded}+to+Arrecife+Lanzarote+on+${date}+one+way`;
+const AFFILIATE_CONFIG = {
+  // Google Flights hat kein klassisches Affiliate Programm, bleibt direkt.
+  FLIGHTS_BASE: "https://www.google.com/travel/flights",
+  
+  // Direct Ferries Tracking Link (Prio 1 für den Verein)
+  FERRY_HUELVA: "https://www.directferries.de/?dfpid=6994&affid=1&rurl=huelva_arrecife_faehre.htm",
+  FERRY_CADIZ: "https://www.directferries.de/cadiz_arrecife_faehre.htm",
+  
+  // Bahn Affiliate Link (z.B. via Awin oder Tradedoubler)
+  TRAIN_BASE: "https://www.bahn.de/", 
+  
+  // Flixbus Partnerlink
+  BUS_BASE: "https://www.flixbus.de/",
+  
+  // Mietwagen (z.B. Check24 oder Billiger-Mietwagen Partnerlink)
+  // Tipp: Nutzen Sie einen Deeplink, der direkt auf Arrecife (ACE) zeigt.
+  CAR_RENTAL: "https://www.billiger-mietwagen.de/mietwagen-lanzarote-flughafen-ace.html",
+  
+  // BlaBlaCar Partnerlink
+  BLABLACAR: "https://www.blablacar.de/"
 };
 
-const getFerryUrl = () => "https://www.directferries.de/faehren_nach_lanzarote.htm";
-const getTrainUrl = () => "https://www.bahn.de/";
-const getBusUrl = () => "https://www.flixbus.de/";
-const getCarUrl = () => "https://www.billiger-mietwagen.de/mietwagen-lanzarote-flughafen-ace.html"; // Specific ACE link
+/**
+ * HILFSFUNKTIONEN FÜR URLS
+ */
+
+const getGoogleFlightsUrl = (origin: string, date: string) => {
+  const originEncoded = encodeURIComponent(origin);
+  // Wir suchen explizit nach Arrecife (ACE).
+  return `${AFFILIATE_CONFIG.FLIGHTS_BASE}?q=Flights+from+${originEncoded}+to+Arrecife+Lanzarote+on+${date}+one+way`;
+};
+
+// Intelligente Fähr-URL basierend auf der Route
+const getFerryUrl = (preferredPort: 'HUELVA' | 'CADIZ' = 'HUELVA') => {
+  // Hier könnten Sie Logik einbauen, um Tracking-Parameter anzuhängen
+  if (preferredPort === 'CADIZ') return AFFILIATE_CONFIG.FERRY_CADIZ;
+  return AFFILIATE_CONFIG.FERRY_HUELVA;
+};
+
+const getTrainUrl = () => AFFILIATE_CONFIG.TRAIN_BASE;
+const getBusUrl = () => AFFILIATE_CONFIG.BUS_BASE;
+const getCarUrl = () => AFFILIATE_CONFIG.CAR_RENTAL;
 
 const getBlaBlaUrl = (origin: string, date: string) => {
   const originEncoded = encodeURIComponent(origin);
-  // db = departure base (Start), dt = date
-  return `https://www.blablacar.de/search?db=${originEncoded}&dt=${date}`;
+  // Wenn Ihr Affiliate Link Parameter erlaubt, hängen Sie sie hier an.
+  // Einfache Suche:
+  return `${AFFILIATE_CONFIG.BLABLACAR}search?db=${originEncoded}&dt=${date}`;
 };
 
-// Google Maps Route vom Flughafen ACE zur angegebenen Unterkunft
+// Google Maps Route vom Flughafen ACE zur angegebenen Unterkunft (Kein Affiliate, reiner Service)
 const getRouteUrl = (accommodation: string) => {
   const destEncoded = encodeURIComponent(accommodation);
   return `https://www.google.com/maps/dir/Aeropuerto+César+Manrique-Lanzarote+(ACE),+Arrecife,+Spanien/${destEncoded}`;
@@ -30,25 +66,21 @@ const getRouteUrl = (accommodation: string) => {
  * GENERATOR LOGIK
  */
 export const generateTravelOptions = async (params: SearchParams): Promise<TravelOption[]> => {
-  // Simulierte Ladezeit für das "Gefühl" einer Berechnung
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  // Simulierte Ladezeit
+  await new Promise(resolve => setTimeout(resolve, 800));
 
   const options: TravelOption[] = [];
   const { modes, preference, origin, startDate, accommodation } = params;
 
   // Helper um Navigation zur Unterkunft hinzuzufügen
   const addArrivalStep = (steps: BookingStep[]) => {
-    // 1. Mietwagen Check: Wenn User nicht schon "Mietwagen" als Hauptmodus gewählt hat, 
-    // und auch kein eigenes Fahrzeug hat, empfehlen wir einen für die Insel.
-    // Aber der User wollte spezifisch "Mietwagenbuchung von Lanzarote zur Unterkunft".
-    // Also fügen wir es fast immer hinzu, außer er hat ein eigenes Auto dabei.
-    
+    // 1. Mietwagen Check
     if (!modes.includes(TransportMode.OWN_VEHICLE)) {
          steps.push({
             stepTitle: "Mietwagen für die Insel",
             providerName: "Billiger-Mietwagen (Abholung ACE)",
             bookingUrl: getCarUrl(),
-            description: "Unverzichtbar für den Weg zur Unterkunft und Ausflüge. Übernahme direkt am Terminal."
+            description: "Unverzichtbar für den Weg zur Unterkunft. Wenn Sie über diesen Link buchen, unterstützen Sie unseren Verein."
           });
     }
 
@@ -74,7 +106,7 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
         stepTitle: "Flugvergleich (DACH & Umkreis)",
         providerName: "Google Flights",
         bookingUrl: getGoogleFlightsUrl(origin, startDate),
-        description: `Suche ab ${origin} und umliegenden Flughäfen (ca. 200km Radius). Ziel ist immer Arrecife (ACE).`
+        description: `Suche ab ${origin} und Umgebung (200km Radius). Ziel ist Arrecife (ACE).`
       }
     ];
 
@@ -83,18 +115,17 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
         stepTitle: "Mitfahrgelegenheit zum Flughafen",
         providerName: "BlaBlaCar",
         bookingUrl: getBlaBlaUrl(origin, startDate),
-        description: `Suche vorausgefüllt: Von ${origin}. Bitte geben Sie als Ziel Ihren gewählten Abflughafen ein.`
+        description: `Günstig zum Flughafen. Geben Sie als Ziel Ihren Abflughafen ein.`
       });
     } else if (modes.includes(TransportMode.COACH)) {
        flightSteps.unshift({
         stepTitle: "Fernbus zum Flughafen",
         providerName: "FlixBus",
         bookingUrl: getBusUrl(),
-        description: "Bequeme Anreise zum Abflughafen ohne Parkplatzgebühren."
+        description: "Bequeme Anreise zum Abflughafen ohne Parkgebühren."
       });
     }
 
-    // Add local transport & navigation
     addArrivalStep(flightSteps);
 
     options.push({
@@ -104,9 +135,9 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
       duration: 'ca. 4.5 Stunden (reine Flugzeit)',
       priceEstimate: isCheap ? 'ab 120€ p.P.' : 'ab 300€ p.P.',
       stressLevel: isComfort ? 'Niedrig' : 'Mittel',
-      routeDescription: `Starten Sie entspannt von einem Flughafen in Ihrer Nähe (${origin} + 200km). Ziel ist Arrecife (ACE). Dort nehmen Sie Ihren Mietwagen zur Unterkunft.`,
-      stops: [`Start: ${origin} (Umkreis)`, 'Ziel: Arrecife (ACE)', `Unterkunft: ${accommodation || 'Lanzarote'}`],
-      pros: ['Schnellste Anreise', 'Große Auswahl im DACH-Raum', 'Wettergarantie in wenigen Stunden'],
+      routeDescription: `Starten Sie entspannt von einem Flughafen in Ihrer Nähe (${origin} + 200km). Ziel ist Arrecife (ACE).`,
+      stops: [`Start: ${origin}`, 'Ziel: Arrecife (ACE)', `Unterkunft: ${accommodation || 'Lanzarote'}`],
+      pros: ['Schnellste Anreise', 'Große Auswahl', 'Wettergarantie in wenigen Stunden'],
       cons: ['Gepäckbeschränkungen', 'Transfer zum Flughafen nötig'],
       bookingSteps: flightSteps
     });
@@ -121,9 +152,9 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
     if (modes.includes(TransportMode.TRAIN)) {
       landSteps.push({
         stepTitle: "Zug durch Europa",
-        providerName: "Deutsche Bahn (DB) / ÖBB / SBB",
+        providerName: "Deutsche Bahn / Partner",
         bookingUrl: getTrainUrl(),
-        description: "Buchen Sie bis Südspanien (Huelva oder Cádiz). Tipp: Interrail-Pass für Senioren prüfen!"
+        description: "Buchen Sie bis Südspanien (Huelva oder Cádiz)."
       });
     } else if (modes.includes(TransportMode.COACH)) {
       landSteps.push({
@@ -134,16 +165,14 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
       });
     }
 
+    // Wir geben beide Fähr-Optionen zur Auswahl oder entscheiden basierend auf Logik
     landSteps.push({
-      stepTitle: "Fährüberfahrt (Kanaren)",
+      stepTitle: "Fährüberfahrt (Route Huelva)",
       providerName: "Direct Ferries",
-      bookingUrl: getFerryUrl(),
-      description: isComfort 
-        ? "Wählen Sie Huelva oder Cádiz als Abfahrtsort. Ziel ist immer Arrecife (Lanzarote). Empfehlung: Außenkabine." 
-        : "Buchung der Fähre: Abfahrt ab Huelva oder Cádiz wählen. Zielhafen: Arrecife."
+      bookingUrl: getFerryUrl('HUELVA'),
+      description: "Beliebte Route ab Huelva nach Arrecife. Dauer ca. 27-30 Std."
     });
 
-    // Add local transport & navigation
     addArrivalStep(landSteps);
 
     options.push({
@@ -153,10 +182,10 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
       duration: '2-3 Tage',
       priceEstimate: 'ab 250€ - 500€ p.P.',
       stressLevel: 'Niedrig',
-      routeDescription: 'Eine Panoramareise durch den DACH-Raum, Frankreich und Spanien bis zum Fährhafen. Auf Lanzarote geht es per Mietwagen zur Unterkunft.',
-      stops: ['Heimatbahnhof', 'Frankreich', 'Südspanien (Hafen)', 'Arrecife', `Unterkunft: ${accommodation || 'Insel'}`],
-      pros: ['Kein Flugstress', 'Viel Gepäck möglich', 'Erlebnisreise durch Europa'],
-      cons: ['Lange Reisezeit', 'Umstiege in Paris/Madrid'],
+      routeDescription: 'Eine Panoramareise durch Europa bis zum Fährhafen Huelva oder Cádiz.',
+      stops: ['Heimatbahnhof', 'Frankreich', 'Südspanien (Hafen)', 'Arrecife'],
+      pros: ['Kein Flugstress', 'Viel Gepäck möglich', 'Erlebnisreise'],
+      cons: ['Lange Reisezeit'],
       bookingSteps: landSteps
     });
   }
@@ -168,14 +197,14 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
         {
           stepTitle: "Fähre inkl. Fahrzeug buchen",
           providerName: "Direct Ferries",
-          bookingUrl: getFerryUrl(),
-          description: "Wichtig: Fahrzeugmaße angeben! Wählen Sie Abfahrt (Huelva/Cádiz) und Ziel (Arrecife)."
+          bookingUrl: getFerryUrl('HUELVA'), // Standard Huelva mit Tracking
+          description: "Wichtig: Fahrzeugmaße im Formular angeben! Route: Huelva -> Arrecife."
         },
         {
-          stepTitle: "Routenplanung Festland",
-          providerName: "ViaMichelin",
-          bookingUrl: "https://www.viamichelin.de/",
-          description: "Planen Sie Zwischenstopps in Frankreich und Spanien ein."
+          stepTitle: "Alternative: Fähre ab Cádiz",
+          providerName: "Direct Ferries",
+          bookingUrl: getFerryUrl('CADIZ'),
+          description: "Prüfen Sie auch Abfahrten ab Cádiz nach Arrecife (Naviera Armas / Trasmediterranea)."
         }
     ];
 
@@ -196,10 +225,10 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
       duration: '3-5 Tage (gemütlich)',
       priceEstimate: 'Fähre ca. 400-900€ (inkl. KFZ)',
       stressLevel: 'Mittel',
-      routeDescription: `Starten Sie in ${origin}. Fahren Sie via Frankreich nach Huelva oder Cádiz (Spanien). Von dort mit der Fähre nach Arrecife und direkt zur Unterkunft.`,
-      stops: [`Start: ${origin}`, 'Lyon/Bordeaux', 'Madrid/Sevilla', 'Fähre', 'Lanzarote'],
-      pros: ['Maximale Flexibilität', 'Eigenes Fahrzeug auf der Insel', 'Ideal für Überwinterer'],
-      cons: ['Mautgebühren', 'Hohe Fährkosten für Camper'],
+      routeDescription: `Starten Sie in ${origin}. Via Frankreich nach Huelva oder Cádiz (Spanien). Fähre nach Arrecife.`,
+      stops: [`Start: ${origin}`, 'Spanien (Hafen)', 'Fähre', 'Lanzarote'],
+      pros: ['Maximale Flexibilität', 'Eigenes Fahrzeug', 'Ideal für Überwinterer'],
+      cons: ['Mautgebühren', 'Fährkosten'],
       bookingSteps: carSteps
     });
   }
@@ -211,7 +240,7 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
           stepTitle: "Flug buchen",
           providerName: "Google Flights",
           bookingUrl: getGoogleFlightsUrl(origin, startDate),
-          description: "Wir suchen ab Ihrem Standort nach Flügen."
+          description: "Suche ab Ihrem Standort."
         }
       ];
       addArrivalStep(fallbackSteps);
@@ -223,7 +252,7 @@ export const generateTravelOptions = async (params: SearchParams): Promise<Trave
       duration: '5 Std.',
       priceEstimate: 'Variabel',
       stressLevel: 'Niedrig',
-      routeDescription: 'Die bewährte Kombination für Lanzarote.',
+      routeDescription: 'Die bewährte Kombination.',
       stops: ['Start', 'Arrecife'],
       pros: ['Einfachste Anreise'],
       cons: [],

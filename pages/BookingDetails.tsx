@@ -2,7 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { TravelOption } from '../types';
 import { Button } from '../components/Button';
-import { ExternalLink, ArrowLeft, CheckCircle, Info, Map as MapIcon, Car } from 'lucide-react';
+import { ExternalLink, ArrowLeft, CheckCircle, Info, Map as MapIcon, Heart } from 'lucide-react';
 
 export const BookingDetails: React.FC = () => {
   const location = useLocation();
@@ -34,10 +34,25 @@ export const BookingDetails: React.FC = () => {
         </div>
 
         <div className="p-8 space-y-8">
+          
+          {/* Transparency / Affiliate Disclosure */}
+          <div className="bg-green-50 p-5 rounded-xl border border-green-200 flex flex-col sm:flex-row gap-4 items-start shadow-sm">
+             <div className="p-3 bg-white rounded-full text-green-600 shadow-sm shrink-0">
+               <Heart className="w-6 h-6 fill-current" />
+             </div>
+             <div>
+               <h4 className="font-bold text-green-800 text-lg mb-1">Gutes tun mit Ihrer Reise</h4>
+               <p className="text-green-800 text-sm md:text-base leading-relaxed">
+                 Diese App ist für Sie kostenlos. Wenn Sie über die Buttons "Zum Angebot" buchen, erhalten wir vom Anbieter teilweise eine kleine Provision. 
+                 <strong>Für Sie bleibt der Preis gleich!</strong> Mit dieser Unterstützung helfen Sie unserem Verein, dieses Angebot für Best Ager weiterzuführen.
+               </p>
+             </div>
+          </div>
+
           <div className="bg-orange-50 p-4 rounded-xl border border-orange-200 flex gap-3">
             <Info className="w-6 h-6 text-orange-600 shrink-0" />
             <p className="text-orange-800 text-sm md:text-base">
-              <strong>Hinweis:</strong> Wir leiten Sie direkt zu den Anbietern weiter. Da Preise schwanken, prüfen Sie bitte vor der Zahlung noch einmal das genaue Datum.
+              <strong>Hinweis:</strong> Die Links führen direkt zu den Anbietern. Prüfen Sie bitte vor der Zahlung dort noch einmal das genaue Datum.
             </p>
           </div>
 
